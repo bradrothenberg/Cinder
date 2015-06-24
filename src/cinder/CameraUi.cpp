@@ -200,21 +200,42 @@ void CameraUi::mouseDrag( const ivec2 &mousePos, bool leftDown, bool middleDown,
 		float deltaX = ( mousePos.x - mInitialMousePos.x ) / -100.0f;
 		float deltaY = ( mousePos.y - mInitialMousePos.y ) / 100.0f;
 		vec3 mW = normalize( mInitialCam.getViewDirection() );
-		bool invertMotion = (mInitialCam.getOrientation() * mInitialCam.getWorldUp()).y < 0.0f;
-		
-		vec3 mU = normalize(cross(mInitialCam.getWorldUp(), mW));
+		vec3 mU = normalize( cross(mInitialCam.getWorldUp(), mW ) );
+		float viewDX = mInitialCam.getOrientation().x;
+		float viewDY = mInitialCam.getOrientation().y;
+		float valX = (mInitialCam.getOrientation() *  mInitialCam.getWorldUp()).x;
+		float valY = (mInitialCam.getOrientation() *  mInitialCam.getWorldUp()).y;
 
-		if( invertMotion ) {
-			deltaX = -deltaX;
+		if ( valX > 0.0f && valY < 0.0f && viewDX > 0.0f && viewDY < 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX > 0.0f && valY > 0.0f && viewDX < 0.0f && viewDY > 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX > 0.0f && valY > 0.0f && viewDX > 0.0f && viewDY < 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX < 0.0f && valY > 0.0f && viewDX < 0.0f && viewDY < 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX < 0.0f && valY < 0.0f && viewDX < 0.0f && viewDY < 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX > 0.0f && valY < 0.0f && viewDX < 0.0f && viewDY > 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX < 0.0f && valY > 0.0f && viewDX > 0.0f && viewDY > 0.0f ) {
+			deltaY = -deltaY;
+		}
+		else if ( valX < 0.0f && valY < 0.0f && viewDX > 0.0f && viewDY > 0.0f ) {
 			deltaY = -deltaY;
 		}
 
 		glm::vec3 rotatedVec = glm::angleAxis( deltaY, mU ) * ( -mInitialCam.getViewDirection() * mInitialPivotDistance );
-		rotatedVec = glm::angleAxis(deltaX, mInitialCam.getWorldUp()) * rotatedVec;
+		rotatedVec = glm::angleAxis( deltaX, mInitialCam.getWorldUp() ) * rotatedVec;
 
 		mCamera->setEyePoint( mInitialCam.getEyePoint() + mInitialCam.getViewDirection() * mInitialPivotDistance + rotatedVec );
-		mCamera->setOrientation(glm::angleAxis(deltaX, mInitialCam.getWorldUp()) * glm::angleAxis(deltaY, mU) * mInitialCam.getOrientation());
-
+		mCamera->setOrientation( glm::angleAxis( deltaX, mInitialCam.getWorldUp()) * glm::angleAxis( deltaY, mU ) * mInitialCam.getOrientation() );
 	}
 	
 	mSignalCameraChange.emit();
